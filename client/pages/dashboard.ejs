@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Expense Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 800px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .overview {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .overview-item {
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .overview-item h2 {
+            color: #007bff;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #dddddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .btns {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Expense Tracker Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <h1>Overview</h1>
+        <div class="overview">
+            <div class="overview-item">
+                <h2>$1,200</h2>
+                <p>Total Income</p>
+            </div>
+            <div class="overview-item">
+                <h2>$800</h2>
+                <p>Total Expenses</p>
+            </div>
+            <div class="overview-item">
+                <h2>$400</h2>
+                <p>Balance</p>
+            </div>
+        </div>
+
+        <h1>Recent Transactions</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2025-01-05</td>
+                    <td>Groceries</td>
+                    <td>Food</td>
+                    <td>$50</td>
+                </tr>
+                <tr>
+                    <td>2025-01-06</td>
+                    <td>Rent</td>
+                    <td>Housing</td>
+                    <td>$500</td>
+                </tr>
+                <tr>
+                    <td>2025-01-07</td>
+                    <td>Movie</td>
+                    <td>Entertainment</td>
+                    <td>$20</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="btns">
+            <a href="/auth/addIncome" class="btn">Add Income</a>
+            <a href="/auth/addExpense" class="btn">Add Expense</a>
+            <a href="/auth/AllExpenses" class="btn">Show All Expenses</a>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboardData() {
+            const incomeElement = document.querySelector('.overview-item:nth-child(1) h2');
+            const expensesElement = document.querySelector('.overview-item:nth-child(2) h2');
+            const balanceElement = document.querySelector('.overview-item:nth-child(3) h2');
+            const transactionsTable = document.querySelector('tbody');
+            const errorMessage = document.createElement('p');
+    
+            try {
+                // Fetch dashboard data from the backend
+                const response = await fetch('/Income/getIncome');
+                if (!response.ok) throw new Error('Failed to fetch dashboard data');
+                
+                const data = await response.json();
+                console.log(data);
+                // Update Overview section
+                incomeElement.textContent = `₹${data.inc[0].income}`;
+                expensesElement.textContent = `₹${data.inc[0].expense}`;
+                balanceElement.textContent = `₹${data.inc[0].balance}`;
+    
+                // Populate Recent Transactions table
+                transactionsTable.innerHTML = ''; // Clear existing rows
+                if (data.transactions.length > 0) {
+                    for (let i=0; i<Math.min(data.transactions.length, 3); i++) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(data.transactions[i].date).toLocaleDateString()}</td>
+                            <td>${data.transactions[i].description}</td>
+                            <td>${data.transactions[i].category}</td>
+                            <td>₹${data.transactions[i].amount}</td>
+                        `;
+                        transactionsTable.appendChild(row);
+                    };
+                } else {
+                    // Handle no recent expenses
+                    transactionsTable.innerHTML = '<tr><td colspan="4">No recent transactions</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+    
+                // Display error message
+                errorMessage.textContent = 'Failed to load dashboard data. Please try again later.';
+                errorMessage.style.color = 'red';
+                errorMessage.style.textAlign = 'center';
+    
+                document.querySelector('.container').appendChild(errorMessage);
+            }
+        }
+    
+        // Load data when the page is loaded
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+        
+</body>
+</html>
