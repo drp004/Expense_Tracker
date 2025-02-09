@@ -20,7 +20,7 @@ app.set("view engine", "ejs");
 app.set("views", "../client");
 
 
-mongoose.connect("mongodb+srv://theprogrammer004:Dhruv3410@cluster0.4vvwt.mongodb.net/Expense_tracker?retryWrites=true&w=majority&appName=Cluster0").then(() => console.log("db Connected!")).catch((err) => console.log(err));
+mongoose.connect("mongodb+srv://theprogrammer004:Dhruv3410@cluster0.4vvwt.mongodb.net/ExpenseTracker?retryWrites=true&w=majority&appName=Cluster0").then(() => console.log("db Connected!")).catch((err) => console.log(err));
 
 app.get("/", (req, res) => {
     res.render("index");
